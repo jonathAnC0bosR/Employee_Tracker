@@ -5,12 +5,14 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node develop/js/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "asciiart-logo": "^0.2.7",
+    "dotenv": "^16.1.3",
     "express": "^4.18.2",
     "inquirer": "^8.2.4",
     "mysql2": "^3.3.3"
