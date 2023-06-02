@@ -14,10 +14,12 @@ const db = mysql.createConnection(
         host: 'localhost',
         user: 'root',
         password: '*O[!:o=7K@',
-        database: 'main_db'
+        database: 'employees_db'
     },
     console.log(`Connected to the main_db database `)
 );
+
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
