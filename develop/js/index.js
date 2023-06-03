@@ -29,43 +29,75 @@ const db = mysql.createConnection(
     console.log(`Connected to the main_db database `)
 );
 
-const userInput = inquirer
-    .prompt([
-        {
-            type: 'list',
-            message: 'What would you like to do?',
-            name: 'activity',
-            choices: [
-                'View all departments', 'View all roles', 
-                'View all employees', 'Add a department', 
-                'Add a role', 'Add an employee', 
-                'Update an employee'
-            ],
-        },
+const userInput = () => {
+    inquirer
+        .prompt([
+            {
+                type:'list',
+                message: 'What would you like to do?',
+                name: 'action',
+                choices: [
+                    'View all departments', 'View all roles', 
+                    'View all employees', 'Add a department', 
+                    'Add a role', 'Add an employee', 
+                    'Update an employee'
+                ],
+            }
+        ])
+        .then((data) => {
+            
+            switch(data.action) {
+                case 'View all departments':
+                    db.query('select * from department', (err, results) => {
+                        console.table(results);
+                    });
+                    break;
+            }
 
-    ])
-    .then((data) => {
-        
-        mysqlQuery(data)
-    });
-
-const mysqlQuery = (data) => {
-
-    if(data.activity === 'View all departments') {
-        db.query('SELECT * FROM department', (err, results) => {
-            console.table(results);
-        });
-    } else if (data.activity === 'View all roles') {
-        db.query('SELECT * FROM role', (err, results) => {
-            console.table(results);
-        });
-    } else if(data.activity === 'View all employees') {
-        db.query('SELECT * FROM employee', (err, results) => {
-            console.table(results);
-        });
-    }
+            userInput();
+        })
 };
 
+userInput();
+
+// const userInput = () => {
+//   inquirer
+//     .prompt([
+//         {
+//             type: 'list',
+//             message: 'What would you like to do?',
+//             name: 'activity',
+//             choices: [
+//                 'View all departments', 'View all roles', 
+//                 'View all employees', 'Add a department', 
+//                 'Add a role', 'Add an employee', 
+//                 'Update an employee'
+//             ],
+//         },
+
+//     ])
+//     .then((data) => {
+//         switch(data.activity) {
+        
+//             case 'View all departments':
+//                 db.query('SELECT * FROM department', (err, results) => {
+//                 console.table(results);
+//                  });
+//                 break;
+    
+//             case 'View all roles':
+//                 db.query('select * from department JOIN role ON department.id = role.department_id', (err, results) =>  {
+//                     console.table(results);
+//                 });
+//                 break;
+//         }
+        
+//         userInput();
+
+//     });
+// }
+ 
+// userInput();
 
 module.exports = userInput;
 
