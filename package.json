@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "asciiart-logo": "^0.2.7",
+    "cli-table": "^0.3.11",
     "dotenv": "^16.1.3",
     "express": "^4.18.2",
     "inquirer": "^8.2.4",
