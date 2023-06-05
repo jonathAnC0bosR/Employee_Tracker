@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 require('dotenv').config()
 const logo = require('asciiart-logo');
+const table = require('console.table');
 
 console.log(
     logo({
@@ -40,7 +41,7 @@ const userInput = () => {
                 choices: [
                     'View all departments', 'View all roles', 
                     'View all employees', 'Add a department',
-                    'Add a role'
+                    'Add a role', 'Add an employee'
                     ],
             }
         ])
@@ -83,13 +84,15 @@ const userInput = () => {
                             message: 'Select the role id: 1-Production, 2-Sales, 3-Marketing, 4-Finance, 5-IT, 6-HR',
                             name: 'role_id',
                             choices: [1, 2, 3, 4, 5, 6]
+                            // Is there a way for the user to add another department_id? Or it must
+                            //be like this aproach? 
                         },
                     ]).then((answers) => {
                         const roleName = answers.role_name;
                         const roleSalary = answers.role_salary;
                         const roleDepartment = answers.role_id;
 
-                        db.query(`INSERT INTO role (job_title, salary, department_id) VALUES ("${roleName}", "${roleSalary}, ${roleDepartment}")`, 
+                        db.query(`INSERT INTO role (job_title, salary, department_id) VALUES ("${roleName}", "${roleSalary}", ${roleDepartment});`, 
                         (err, results) => {
                             if(err) {
                                 console.log(err);
