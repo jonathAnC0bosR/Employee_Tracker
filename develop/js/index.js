@@ -33,6 +33,59 @@ const db = mysql.createConnection(
     console.log(`Connected to the database `)
 );
 
+const getDepartments = () => {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT * FROM department', (err, results) => {
+            if(err) {
+                reject(err);
+            } else {
+                const departmentNames = results.map(({id, department_name})=> ({
+                    name: department_name,
+                    value: id
+                }));
+                resolve(departmentNames);
+            }
+        });
+    });
+};
+
+const getRoles = () => {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT * FROM ROLE', (err, results) => {
+            if(err) {
+                reject(err);
+            } else {
+                const roleNames = results.map(({id, job_title}) => ({
+                    name: job_title,
+                    value: id
+                }));
+                resolve(roleNames);
+            }
+        })
+    })
+};
+
+// getRoles();
+
+const getManagerId = () => {
+    return new Promise((reject, resolve) => {
+        db.query('Select * from employee', (err, results) => {
+            if(err) {
+                reject(err);
+            } else {
+                const managerId = results.map(({id, first_name}) => ({
+                    name: first_name,
+                    value: id
+                }));
+                resolve(managerId);
+                console.log(managerId);
+            }
+        })
+    })
+};
+
+// getManagerId();
+
 // Function that checks for the answers of the user and runs code depending of what the user wants to do. 
 const userInput = () => {
     inquirer
@@ -44,7 +97,7 @@ const userInput = () => {
                 choices: [
                     'View all departments', 'View all roles', 
                     'View all employees', 'Add a department',
-                    'Add a role', 'Add an employee'
+                    'Add a role', 'Add an employee', 'Exit'
                     ],
             }
         ])
@@ -74,21 +127,19 @@ const userInput = () => {
                     inquirer.prompt([
                         {
                             type: 'input',
-                            message: 'Type the name of the role: ',
+                            message: 'What is the name of the role? ',
                             name: 'role_name'
                         },
                         {
                             type: 'input',
-                            message: 'Type the role salary: ',
+                            message: 'What is the salary of the role? ',
                             name: 'role_salary'
                         },
                         {
                             type: 'list',
-                            message: 'Select the role id: 1-Production, 2-Sales, 3-Marketing, 4-Finance, 5-IT, 6-HR',
+                            message: 'Which department does the role belong to? ',
                             name: 'role_id',
-                            choices: [1, 2, 3, 4, 5, 6]
-                            // Is there a way for the user to add another department_id? Or it must
-                            //be like this aproach? 
+                            choices: () => getDepartments(),//[{name,value},{name,value}]
                         },
                     ]).then((answers) => {
                         const roleName = answers.role_name;
@@ -120,15 +171,15 @@ const userInput = () => {
                         },
                         {
                             type: 'list',
-                            message: "Enter the employee's role id : Production - 1, Sales - 2, Marketing - 3, Finance - 4 , IT - 5, 'Human Resources - 6 ",
+                            message: "What is the role? ",
                             name: 'role_id',
-                            choices: ['1', '2', '3', '4', '5', '6']
+                            choices: () => getRoles(),
                         },
                         {
                             type: 'list',
-                            message: 'Enter the employee manager: Sam Perez - 1, Juan Lopez - 2, Erik Niemann - 3, Magnus Carlsen - 4, Levy Rozzman - 5, Gareth Gordon - 6',
+                            message: 'Who is the manager of the employee? ',
                             name: 'manager_id',
-                            choices: ['1', '2', '3', '4', '5', '6']
+                            choices: () => getManagerId(),
                         },
                     ]).then((answers) => {
                         const employeeFirstName = answers.employee_fn;
@@ -147,6 +198,8 @@ const userInput = () => {
                         })
 
                     })
+                }else if(data.action === 'Exit'){
+                    process.exit(0);
                 }else {
                     mysqlQuery(data.action);
                 }
