@@ -1,9 +1,12 @@
+//Requiring all the needed depedencies.
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 require('dotenv').config()
 const logo = require('asciiart-logo');
-const table = require('console.table');
+require('console.table');
+//A server.js is necessary to run the programm, but I must not link this index to the serves.js?
 
+// Console.log logo displays the logo at the beggining of the terminal. 
 console.log(
     logo({
         name: 'Employee Manager',
@@ -19,7 +22,7 @@ console.log(
     .emptyLine()
     .render()
 );
-
+// Connects to the database 
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -27,10 +30,10 @@ const db = mysql.createConnection(
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME
     },
-    console.log(`Connected to the main_db database `)
+    console.log(`Connected to the database `)
 );
 
-
+// Function that checks for the answers of the user and runs code depending of what the user wants to do. 
 const userInput = () => {
     inquirer
         .prompt([
@@ -103,13 +106,55 @@ const userInput = () => {
                         });
                     })
 
-                } else {
+                } else if(data.action ==='Add an employee') {
+                    inquirer.prompt([
+                        {
+                            type: 'input',
+                            message: "Enter the employee's first name: ",
+                            name: 'employee_fn'
+                        },
+                        {
+                            type: 'input',
+                            message: "Enter the employee's last name: ",
+                            name: 'employee_ln'
+                        },
+                        {
+                            type: 'list',
+                            message: "Enter the employee's role id : Production - 1, Sales - 2, Marketing - 3, Finance - 4 , IT - 5, 'Human Resources - 6 ",
+                            name: 'role_id',
+                            choices: ['1', '2', '3', '4', '5', '6']
+                        },
+                        {
+                            type: 'list',
+                            message: 'Enter the employee manager: Sam Perez - 1, Juan Lopez - 2, Erik Niemann - 3, Magnus Carlsen - 4, Levy Rozzman - 5, Gareth Gordon - 6',
+                            name: 'manager_id',
+                            choices: ['1', '2', '3', '4', '5', '6']
+                        },
+                    ]).then((answers) => {
+                        const employeeFirstName = answers.employee_fn;
+                        const employeeLastName = answers.employee_ln;
+                        const employeeRole = answers.role_id;
+                        const employeeManager = answers.manager_id;
+
+                        db.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES ("${employeeFirstName}", "${employeeLastName}", ${employeeRole}, ${employeeManager} )`, 
+                        (err, results) => {
+                            if(err) {
+                                console.log(err);
+                            } else {
+                                console.log('Employee added sucesfully to the database');
+                                userInput();
+                            }
+                        })
+
+                    })
+                }else {
                     mysqlQuery(data.action);
                 }
             
         });
 };
 
+// Recursive function to run what the user inputs. 
 const mysqlQuery = (data) => {
     switch(data) {
         case 'View all departments':
