@@ -67,24 +67,25 @@ const getRoles = () => {
 
 // getRoles();
 
-const getManagerId = () => {
-    return new Promise((reject, resolve) => {
+const getId = () => {
+    return new Promise((resolve, reject) => {
         db.query('Select * from employee', (err, results) => {
             if(err) {
                 reject(err);
             } else {
-                const managerId = results.map(({id, first_name}) => ({
-                    name: first_name,
+                const managerId = results.map(({id, first_name, last_name}) => ({
+                    name: `${first_name} ${last_name}`,
                     value: id
                 }));
                 resolve(managerId);
-                console.log(managerId);
             }
         })
     })
 };
 
 // getManagerId();
+
+
 
 // Function that checks for the answers of the user and runs code depending of what the user wants to do. 
 const userInput = () => {
@@ -97,7 +98,8 @@ const userInput = () => {
                 choices: [
                     'View all departments', 'View all roles', 
                     'View all employees', 'Add a department',
-                    'Add a role', 'Add an employee', 'Exit'
+                    'Add a role', 'Add an employee','Update an employee role', 
+                    'Exit'
                     ],
             }
         ])
@@ -179,7 +181,8 @@ const userInput = () => {
                             type: 'list',
                             message: 'Who is the manager of the employee? ',
                             name: 'manager_id',
-                            choices: () => getManagerId(),
+                            choices: () => getId(),
+                            // How can I add a the null parameter?
                         },
                     ]).then((answers) => {
                         const employeeFirstName = answers.employee_fn;
@@ -198,7 +201,33 @@ const userInput = () => {
                         })
 
                     })
-                }else if(data.action === 'Exit'){
+                }else if(data.action === 'Update an employee role') {
+                    inquirer.prompt([
+                        {
+                            type: 'list',
+                            message: "Which employee's role do you want to update? ",
+                            name: 'employees_id',
+                            choices: () => getId(),
+                        },
+                        {
+                            type: 'list',
+                            message: 'Which role do you want to assign the selected employee', 
+                            name: 'employee_role',
+                            choices: () => getRoles(),
+                        }
+                    ]).then((answers) => {
+                        db.query(`UPDATE employee SET role_id = ${answers.employee_role} WHERE id = ${answers.employees_id} `, (err, results) => {
+                            if(err) {
+                                console.error(err);
+                            } else {
+                                console.info('Updated employee succesfully! ');
+                                userInput();
+                            }
+                        })
+                    })
+                
+
+                }else if(data.action === 'Exit') {
                     process.exit(0);
                 }else {
                     mysqlQuery(data.action);
@@ -240,8 +269,6 @@ const mysqlQuery = (data) => {
     
     userInput();
 };
-
-
 
 userInput();
 
